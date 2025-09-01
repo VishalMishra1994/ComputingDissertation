@@ -10,16 +10,17 @@
 #     if cv2.waitKey(1) == ord('q'): break
 # cap.release()
 # cv2.destroyAllWindows()
+from picamera2 import Picamera2
 import cv2
-cap = cv2.VideoCapture(0, cv2.CAP_V4L2)  # hint V4L2
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
-while cap.isOpened():
-    ok, f = cap.read()
-    if not ok:
-        print("No Frame"); break
-    cv2.imshow("Pi Cam", f)
+picam2 = Picamera2()
+picam2.configure(picam2.create_preview_configuration(main={"size": (640, 480), "format": "RGB888"}))
+picam2.start()
+
+while True:
+    frame = picam2.capture_array()
+    cv2.imshow("Pi Cam (Picamera2)", frame)
     if cv2.waitKey(1) == ord('q'): break
 
-cap.release(); cv2.destroyAllWindows()
+cv2.destroyAllWindows()
+picam2.stop()
