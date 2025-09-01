@@ -26,8 +26,19 @@
 # cv2.destroyAllWindows()
 # picam2.stop()
 ################################################################
-from picamera2 import Picamera2, Preview
+from picamera2 import Picamera2
+import cv2, time
+
 picam2 = Picamera2()
-picam2.start_preview(Preview.DRM)  # requires a display connected to HDMI
-picam2.configure(picam2.create_preview_configuration())
+picam2.configure(picam2.create_preview_configuration(
+    main={"size": (640, 480), "format": "RGB888"}
+))
 picam2.start()
+time.sleep(0.5)  # warm-up
+
+for i in range(5):
+    frame = picam2.capture_array()
+    cv2.imwrite(f"frame_{i}.jpg", frame)
+    print("saved", f"frame_{i}.jpg", frame.shape)
+
+picam2.stop()
