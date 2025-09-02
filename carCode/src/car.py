@@ -10,7 +10,7 @@ import paho.mqtt.client as mqtt
 # print(config.SERVER_IP)
 
 picam2 = Picamera2()
-picam2.configure(picam2.create_video_configuration(main={"size": (W, H), "format": "RGB888"}))
+picam2.configure(picam2.create_video_configuration(main={"size": (config.Width, config.Height), "format": "RGB888"}))
 picam2.start()
 time.sleep(0.5)
 
