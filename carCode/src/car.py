@@ -16,11 +16,12 @@ time.sleep(0.5)
 
 print("Haar detection running… Ctrl+C to stop") 
 
-client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1,client_id=config.deviceName)
+client = mqtt.Client(client_id=config.deviceName)
 client.connect(config.SERVER_IP, 1883, 60)
 
 def stop(sig, frm):
     picam2.stop()
+    client.disconnect()
     print("\nBye")
     sys.exit(0)
 
@@ -37,8 +38,6 @@ def sendFace(topic, face):
 
 client.publish("test/topic", "Hello from " + config.deviceName)
 
-client.disconnect()
-
 #face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
 face_cascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
 
@@ -46,7 +45,7 @@ face_cascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
 t0, n = time.time(), 0
 while True:
     frame = picam2.capture_array()
-    if n % configFile.frameSkip == 0:
+    if n % config.frameSkip == 0:
         gray  = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
         faces = face_cascade.detectMultiScale(gray, 1.2, 5, minSize=(40, 40))
         if n % (FPS) == 0:
