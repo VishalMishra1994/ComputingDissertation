@@ -14,6 +14,7 @@ sudo apt install python3-pip
 sudo apt install python3-venv
 sudo apt install python3-opencv           OR install in venv
 sudo apt install mosquitto-clients -y
+sudo apt install python3-paho-mqtt
 
 Other commands:
 
