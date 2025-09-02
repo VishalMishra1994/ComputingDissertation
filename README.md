@@ -20,4 +20,6 @@ Other commands:
 
 . .venv/bin/activate
 Tailscale status // tailscale up
-mosquitto -v
+
+cd "C:\Program Files\mosquitto"
+mosquitto.exe -c mosquitto.conf -v
