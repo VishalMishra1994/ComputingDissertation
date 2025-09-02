@@ -51,9 +51,9 @@ while True:
         faces = face_cascade.detectMultiScale(gray, 1.2, 5, minSize=(40, 40))
         if n % (FPS) == 0:
             fps = (n+1)/(time.time()-t0)
-            # print(f"FPS≈{fps:0.1f} | faces={len(faces)} | boxes={faces.tolist() if len(faces) else []}")
-            cv2.imwrite(f"frame_{n}.jpg", frame)
-            print("saved", f"frame_{i}.jpg", frame.shape)
+            print(f"FPS≈{fps:0.1f} | faces={len(faces)} | boxes={faces.tolist() if len(faces) else []}")
+            # cv2.imwrite(f"frame_{n}.jpg", frame)
+            # print("saved", f"frame_{n}.jpg", frame.shape)
     n += 1
 
 # cap = cv2.VideoCapture(0)
