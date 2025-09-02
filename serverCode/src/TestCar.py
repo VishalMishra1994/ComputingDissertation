@@ -3,7 +3,7 @@ import configFile as config
 import paho.mqtt.client as mqtt
 
 client = mqtt.Client(client_id=config.deviceName)
-client.connect("localhost", 1883, 60)  # Replace 'localhost' with broker IP if needed
+client.connect(config.SERVER_IP, 1883, 60)  # Replace 'localhost' with broker IP if needed
 
 # Publish a message
 client.publish("test/topic", "Hello from publisher!")
