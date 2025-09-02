@@ -5,6 +5,7 @@ One-time commands:
 
 curl -fsSL https://tailscale.com/install.sh | sh
 sudo tailscale up --authkey <authKey>
+sudo systemctl enable tailscaled
 
 sudo apt update
 sudo apt install git -y
