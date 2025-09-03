@@ -8,24 +8,11 @@ import base64
 import paho.mqtt.client as mqtt
 
 # print(config.SERVER_IP)
-
-picam2 = Picamera2()
-picam2.configure(picam2.create_video_configuration(main={"size": (config.Width, config.Height), "format": "RGB888"}))
-picam2.start()
-time.sleep(0.5)
-
-print("Haar detection running… Ctrl+C to stop") 
-
-client = mqtt.Client(client_id=config.deviceName)
-client.connect(config.SERVER_IP, 1883, 60)
-
 def stop(sig, frm):
     picam2.stop()
     client.disconnect()
     print("\nBye")
     sys.exit(0)
-
-signal.signal(signal.SIGINT, stop)
 
 def sendText(topic, msg):
     client.publish(topic, msg)
@@ -35,7 +22,13 @@ def sendFace(topic, face):
     faceAsText = base64.b64encode(buffer).decode('utf-8')
     sendText(topic, faceAsText)
 
+picam2 = Picamera2()
+picam2.configure(picam2.create_video_configuration(main={"size": (config.Width, config.Height), "format": "RGB888"}))
+picam2.start()
+time.sleep(0.5)
 
+client = mqtt.Client(client_id=config.deviceName)
+client.connect(config.SERVER_IP, 1883, 60)
 client.publish("test/topic", "Hello from " + config.deviceName)
 
 # face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
@@ -45,6 +38,9 @@ if face_cascade.empty():
     print("Error: Haar cascade not loaded")
     sys.exit(1)
 
+print("Haar detection running… Ctrl+C to stop")
+signal.signal(signal.SIGINT, stop)
+
 # Detect Face
 t0, n = time.time(), 0
 while True:
@@ -52,7 +48,7 @@ while True:
     if n % config.frameSkip == 0:
         gray  = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
         faces = face_cascade.detectMultiScale(gray, 1.2, 5, minSize=(40, 40))
-        if n % (FPS) == 0:
+        if n % (config.FPS) == 0:
             fps = (n+1)/(time.time()-t0)
             print(f"FPS≈{fps:0.1f} | faces={len(faces)} | boxes={faces.tolist() if len(faces) else []}")
             # cv2.imwrite(f"frame_{n}.jpg", frame)
