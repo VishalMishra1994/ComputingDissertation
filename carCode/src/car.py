@@ -51,6 +51,9 @@ while True:
         if n % (config.FPS) == 0:
             fps = (n+1)/(time.time()-t0)
             print(f"FPS≈{fps:0.1f} | faces={len(faces)} | boxes={faces.tolist() if len(faces) else []}")
+            if len(faces) == 0:
+                cv2.imwrite("debug_frame.jpg", cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
+                print("Saved debug_frame.jpg — check lighting/distance/pose")
             # cv2.imwrite(f"frame_{n}.jpg", frame)
             # print("saved", f"frame_{n}.jpg", frame.shape)
     n += 1
