@@ -11,9 +11,15 @@ def on_connect(client, userdata, flags, rc):
 
 # Callback when a message is received
 def on_message(client, userdata, msg):
-    print(f"Received message: '{msg.payload.decode()}' on topic '{msg.topic}'")
+    # print(f"Received message: '{msg.payload.decode()}' on topic '{msg.topic}'")
+    if getattr(msg, "properties", None) and getattr(msg.properties, "UserProperty", None):
+        props = dict(msg.properties.UserProperty)
+        if props.get("content_type") == "image":
+            with open(filename, "wb") as f:
+                f.write(msg.payload)
+            print(f"Saved {filename} ({ct}), {len(m.payload)} bytes")
 
-client = mqtt.Client(client_id="Server")
+client = mqtt.Client(client_id="Server", protocol=mqtt.MQTTv5)
 client.on_connect = on_connect
 client.on_message = on_message
 
