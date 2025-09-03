@@ -6,3 +6,7 @@ deviceName = "Car1"
 Width, Height, FPS = 320, 240, 15
 vidFormat = "RGB888"
 frameSkip = 1
+
+#Cascade path
+import os
+cascadePath = os.path.join(os.path.dirname(__file__), "haarcascade_frontalface_default.xml")

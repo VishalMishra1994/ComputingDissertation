@@ -38,8 +38,9 @@ def sendFace(topic, face):
 
 client.publish("test/topic", "Hello from " + config.deviceName)
 
-face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+# face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
 # face_cascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
+face_cascade = cv2.CascadeClassifier(config.cascadePath)
 if face_cascade.empty():
     print("Error: Haar cascade not loaded")
     sys.exit(1)
