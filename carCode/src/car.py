@@ -52,7 +52,7 @@ while True:
     frame = picam2.capture_array()
     if n % config.frameSkip == 0:
         gray  = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
-        faces = face_cascade.detectMultiScale(gray, 1.2, 5, minSize=(40, 40))
+        faces = face_cascade.detectMultiScale(gray, 1.2, 5, minSize=(20, 20))
 
         if len(faces) > 0:
             for i, (x, y, w, h) in enumerate(faces):

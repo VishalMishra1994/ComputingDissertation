@@ -20,7 +20,7 @@ def on_message(client, userdata, msg):
         if props.get("content_type") == "face":
             with open(props.get("filename"), "wb") as f:
                 f.write(msg.payload)
-            print(f"Saved {props.get("filename")} , {len(m.payload)} bytes")
+            print(f"Saved {props.get("filename")} , {len(msg.payload)} bytes")
     
     else:
         print(f"Received message: '{msg.payload.decode()}' on topic '{msg.topic}'")
