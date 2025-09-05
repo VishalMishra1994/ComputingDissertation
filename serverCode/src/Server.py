@@ -2,14 +2,15 @@ import paho.mqtt.client as mqtt
 
 # Callback when connected to broker
 def on_connect(client, userdata, flags, reasonCode, properties=None):
-    print("Connected with result code " + str(rc))
+    # print("Connected with result code " + str(reasonCode))
     # Subscribe to a topic
     if reasonCode == 0:
+        print("Connected")
         client.subscribe("test/topic")
         # client.subscribe("CarMessages")
         # client.subscribe("ServerMessages")
     else:
-        print("Connection failed!")
+        print("Connection failed with result code " + str(reasonCode))
 
 # Callback when a message is received
 def on_message(client, userdata, msg):
