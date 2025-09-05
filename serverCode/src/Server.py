@@ -18,9 +18,9 @@ def on_message(client, userdata, msg):
     if getattr(msg, "properties", None) and getattr(msg.properties, "UserProperty", None):
         props = dict(msg.properties.UserProperty)
         if props.get("content_type") == "face":
-            with open(filename, "wb") as f:
+            with open(props.get("filename"), "wb") as f:
                 f.write(msg.payload)
-            print(f"Saved {filename} , {len(m.payload)} bytes")
+            print(f"Saved {props.get("filename")} , {len(m.payload)} bytes")
     
     else:
         print(f"Received message: '{msg.payload.decode()}' on topic '{msg.topic}'")
