@@ -20,7 +20,7 @@ def sendText(topic, msg):
     client.publish(topic, msg)
 
 def sendFace(topic, face, fileName, msg):
-    props.UserProperty = [("filename", fileName), ("content_type", "face"), ("message", msg)]
+    props.UserProperty = [("filename", f"{fileName}.jpg"), ("content_type", "face"), ("message", msg)]
     client.publish(topic, face, qos=1, properties=props)
     # _, buffer = cv2.imencode('.jpg', face)
     # faceAsText = base64.b64encode(buffer).decode('utf-8')
