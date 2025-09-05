@@ -55,7 +55,7 @@ while True:
         faces = face_cascade.detectMultiScale(gray, 1.2, 5, minSize=(40, 40))
 
         if len(faces) > 0:
-            for i, face in range(len(faces)):
+            for i, face in enumerate(faces):
                 #crop face out of frame
                 #here
                 sendFace("test/topic", face, "face" + {i}, i)
