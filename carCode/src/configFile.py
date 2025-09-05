@@ -3,7 +3,7 @@ PORT = 6000
 deviceName = "Car1"
 
 #Camera constants
-Width, Height, FPS = 320, 240, 15
+videoWidth, videoHeight, FPS = 320, 240, 15
 vidFormat = "RGB888"
 frameSkip = 1
 

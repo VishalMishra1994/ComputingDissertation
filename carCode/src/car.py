@@ -27,7 +27,7 @@ def sendFace(topic, face, fileName, msg):
     # sendText(topic, faceAsText)
 
 picam2 = Picamera2()
-picam2.configure(picam2.create_video_configuration(main={"size": (config.Width, config.Height), "format": "RGB888"}))
+picam2.configure(picam2.create_video_configuration(main={"size": (config.videoWidth, config.videoHeight), "format": "RGB888"}))
 picam2.start()
 time.sleep(0.5)
 
@@ -55,10 +55,16 @@ while True:
         faces = face_cascade.detectMultiScale(gray, 1.2, 5, minSize=(40, 40))
 
         if len(faces) > 0:
-            for i, face in enumerate(faces):
+            for i, (x, y, w, h) in enumerate(faces):
                 #crop face out of frame
-                #here
-                sendFace("test/topic", face, f"face{i}", i)
+                for i, (x, y, w, h) in enumerate(faces):
+                    face_rgb = frame[y:y+h, x:x+w]
+                    face_bgr = cv2.cvtColor(face_rgb, cv2.COLOR_RGB2BGR)  # OpenCV encodes BGR
+                    ok, face = cv2.imencode(".jpg", face_bgr, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
+                    if not ok:
+                        continue
+                    
+                    sendFace("test/topic", face.tobytes(), f"face{i}", "Face") #change msg here
                 # print(f"boxes={face.tolist()}")
                 # cv2.imwrite(f"Face{i}.jpg", cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
             print(f"faces={len(faces)} | boxes={faces.tolist()}")
