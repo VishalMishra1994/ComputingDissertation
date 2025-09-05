@@ -57,8 +57,10 @@ while True:
         if len(faces) > 0:
             for i, face in range(len(faces)):
                 #crop face out of frame
-                print(f"boxes={face.tolist()}")
-                cv2.imwrite(f"Face{i}.jpg", cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
+                #here
+                sendFace("test/topic", face, "face" + {i}, i)
+                # print(f"boxes={face.tolist()}")
+                # cv2.imwrite(f"Face{i}.jpg", cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
             print(f"faces={len(faces)} | boxes={faces.tolist()}")
 
         

@@ -1,11 +1,13 @@
 import paho.mqtt.client as mqtt
 
 # Callback when connected to broker
-def on_connect(client, userdata, flags, rc):
+def on_connect(client, userdata, flags, reasonCode, properties=None):
     print("Connected with result code " + str(rc))
     # Subscribe to a topic
-    if rc == 0:
+    if reasonCode == 0:
         client.subscribe("test/topic")
+        # client.subscribe("CarMessages")
+        # client.subscribe("ServerMessages")
     else:
         print("Connection failed!")
 
@@ -14,10 +16,13 @@ def on_message(client, userdata, msg):
     # print(f"Received message: '{msg.payload.decode()}' on topic '{msg.topic}'")
     if getattr(msg, "properties", None) and getattr(msg.properties, "UserProperty", None):
         props = dict(msg.properties.UserProperty)
-        if props.get("content_type") == "image":
+        if props.get("content_type") == "face":
             with open(filename, "wb") as f:
                 f.write(msg.payload)
-            print(f"Saved {filename} ({ct}), {len(m.payload)} bytes")
+            print(f"Saved {filename} , {len(m.payload)} bytes")
+    
+    else:
+        print(f"Received message: '{msg.payload.decode()}' on topic '{msg.topic}'")
 
 client = mqtt.Client(client_id="Server", protocol=mqtt.MQTTv5)
 client.on_connect = on_connect
