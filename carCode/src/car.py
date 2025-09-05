@@ -58,7 +58,7 @@ while True:
             for i, face in enumerate(faces):
                 #crop face out of frame
                 #here
-                sendFace("test/topic", face, "face" + i, i)
+                sendFace("test/topic", face, f"face{i}", i)
                 # print(f"boxes={face.tolist()}")
                 # cv2.imwrite(f"Face{i}.jpg", cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
             print(f"faces={len(faces)} | boxes={faces.tolist()}")
