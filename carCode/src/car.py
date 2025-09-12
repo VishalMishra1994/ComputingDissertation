@@ -9,6 +9,7 @@ import paho.mqtt.client as mqtt
 from paho.mqtt.properties import Properties
 from paho.mqtt.packettypes import PacketTypes
 from datetime import datetime
+from trainer import TrainModel
 
 # print(config.SERVER_IP)
 def stop(sig, frm):
@@ -16,6 +17,11 @@ def stop(sig, frm):
     client.disconnect()
     print("\nBye")
     sys.exit(0)
+
+#Remove lines below
+TrainModel()
+print("\nBye")
+sys.exit(0)
 
 def sendText(topic, msg):
     client.publish(topic, msg)
