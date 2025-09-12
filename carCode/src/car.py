@@ -8,6 +8,7 @@ import base64
 import paho.mqtt.client as mqtt
 from paho.mqtt.properties import Properties
 from paho.mqtt.packettypes import PacketTypes
+from datetime import datetime
 
 # print(config.SERVER_IP)
 def stop(sig, frm):
@@ -56,6 +57,8 @@ while True:
         faces = face_cascade.detectMultiScale(gray, 1.2, 5, minSize=(20, 20))
 
         if len(faces) > 0:
+            currentTime = datetime.now()
+            timeStamp = currentTime.strftime("%Y%m%d%H%M%S%f")[:-3]
             for i, (x, y, w, h) in enumerate(faces):
                 #crop face out of original frame
                 x *= config.videoScaler
@@ -69,7 +72,7 @@ while True:
                 if not ok:
                     continue
                 
-                sendFace("test/topic", face.tobytes(), f"face{i}", "Face") #change msg here
+                sendFace("test/topic", face.tobytes(), f"face_{timeStamp}_{i}", "Face") #change msg here
                 # print(f"boxes={face.tolist()}")
                 # cv2.imwrite(f"Face{i}.jpg", cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
             print(f"faces={len(faces)} | boxes={faces.tolist()}")

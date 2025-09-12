@@ -1,4 +1,5 @@
 import paho.mqtt.client as mqtt
+import configFile as config
 
 # Callback when connected to broker
 def on_connect(client, userdata, flags, reasonCode, properties=None):
@@ -18,7 +19,7 @@ def on_message(client, userdata, msg):
     if getattr(msg, "properties", None) and getattr(msg.properties, "UserProperty", None):
         props = dict(msg.properties.UserProperty)
         if props.get("content_type") == "face":
-            with open(props.get("filename"), "wb") as f:
+            with open(config.FacesFolder/props.get("filename"), "wb") as f:
                 f.write(msg.payload)
             print(f"Saved {props.get("filename")} , {len(msg.payload)} bytes")
     
