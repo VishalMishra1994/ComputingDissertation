@@ -3,8 +3,10 @@ PORT = 6000
 deviceName = "Car1"
 
 #Camera constants
-videoWidth, videoHeight, FPS = 320, 240, 15
+videoWidth, videoHeight = 1920, 1080
+FPS = 15
 vidFormat = "RGB888"
+videoScaler = 6
 frameSkip = 1
 
 #Cascade path

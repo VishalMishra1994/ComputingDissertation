@@ -26,16 +26,6 @@ def sendFace(topic, face, fileName, msg):
     # faceAsText = base64.b64encode(buffer).decode('utf-8')
     # sendText(topic, faceAsText)
 
-picam2 = Picamera2()
-picam2.configure(picam2.create_video_configuration(main={"size": (config.videoWidth, config.videoHeight), "format": "RGB888"}))
-picam2.start()
-time.sleep(0.5)
-
-client = mqtt.Client(client_id=config.deviceName, protocol=mqtt.MQTTv5)
-client.connect(config.SERVER_IP, 1883, 60)
-props = Properties(PacketTypes.PUBLISH)
-client.publish("test/topic", "Hello from " + config.deviceName)
-
 # face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
 # face_cascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
 face_cascade = cv2.CascadeClassifier(config.cascadePath)
@@ -46,25 +36,40 @@ if face_cascade.empty():
 print("Haar detection running… Ctrl+C to stop")
 signal.signal(signal.SIGINT, stop)
 
+picam2 = Picamera2()
+picam2.configure(picam2.create_video_configuration(main={"size": (config.videoWidth, config.videoHeight), "format": "RGB888"}))
+picam2.start()
+time.sleep(0.5)
+
+client = mqtt.Client(client_id=config.deviceName, protocol=mqtt.MQTTv5)
+client.connect(config.SERVER_IP, 1883, 60)
+props = Properties(PacketTypes.PUBLISH)
+client.publish("test/topic", "Hello from " + config.deviceName)
+
 # Detect Face
 t0, n = time.time(), 0
 while True:
-    frame = picam2.capture_array()
+    frame_original = picam2.capture_array()
     if n % config.frameSkip == 0:
-        gray  = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+        frame_resized = cv2.resize(frame_original, (0, 0), fx=(1/config.videoScaler), fy=(1/config.videoScaler)) #Resizing the frame to a lower resolution
+        gray  = cv2.cvtColor(frame_resized, cv2.COLOR_RGB2GRAY)
         faces = face_cascade.detectMultiScale(gray, 1.2, 5, minSize=(20, 20))
 
         if len(faces) > 0:
             for i, (x, y, w, h) in enumerate(faces):
-                #crop face out of frame
-                for i, (x, y, w, h) in enumerate(faces):
-                    face_rgb = frame[y:y+h, x:x+w]
-                    face_bgr = cv2.cvtColor(face_rgb, cv2.COLOR_RGB2BGR)  # OpenCV encodes BGR
-                    ok, face = cv2.imencode(".jpg", face_bgr, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
-                    if not ok:
-                        continue
-                    
-                    sendFace("test/topic", face.tobytes(), f"face{i}", "Face") #change msg here
+                #crop face out of original frame
+                x *= config.videoScaler
+                y *= config.videoScaler
+                w *= config.videoScaler
+                h *= config.videoScaler
+
+                face_rgb = frame_original[y:y+h, x:x+w]
+                face_bgr = cv2.cvtColor(face_rgb, cv2.COLOR_RGB2BGR)
+                ok, face = cv2.imencode(".jpg", face_bgr, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
+                if not ok:
+                    continue
+                
+                sendFace("test/topic", face.tobytes(), f"face{i}", "Face") #change msg here
                 # print(f"boxes={face.tolist()}")
                 # cv2.imwrite(f"Face{i}.jpg", cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
             print(f"faces={len(faces)} | boxes={faces.tolist()}")
@@ -79,28 +84,6 @@ while True:
             # print("saved", f"frame_{n}.jpg", frame.shape)
     n += 1
 
-# cap = cv2.VideoCapture(0)
-
-# while True:
-#     ret,frame = cap.read()
-#     if not ret:
-#         print("Failed to grab frame from camera")
-#         break
-
-    
-#     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-#     faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-
-#     for (x,y,w,h) in faces:
-#         faceImg = frame[y:y+h, x:x+w]
-#         cv2.rectangle(frame, (x,y), (x+w,y+h), (255,0,0), 2)
-
-
-#     if cv2.waitKey(1) == ord('q'):
-#         break
-
-# cap.release()
 
 
 
