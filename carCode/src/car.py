@@ -1,7 +1,7 @@
 import cv2
 import time, sys, signal
 from picamera2 import Picamera2
-import configFile as config
+from src import configFile as config
 import socket
 import select
 import base64
