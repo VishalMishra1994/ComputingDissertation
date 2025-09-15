@@ -40,17 +40,22 @@ def TrainModel():
                 print(f"[WARNING] Skipping unreadable file: {imagePath}")
                 continue
             
+            image = cv2.resize(image, (200, 200))
+
             faces.append(image)
             labels.append(personId)
+        
+        if not faces:
+            print(f"No valid training images found for {personName}.")
     
-    faces = np.array(faces)
+    # faces = np.array(faces)
     labels = np.array(labels)
     print(f"[INFO] Found {len(faces)} images across {len(labelMap)} people.")
 
     faceRecognizer = cv2.face.LBPHFaceRecognizer_create()
     faceRecognizer.train(faces, labels)
     os.makedirs(os.path.dirname(FaceRecognitionModel), exist_ok=True)
-    recognizer.save(FaceRecognitionModel)
+    faceRecognizer.save(FaceRecognitionModel)
 
     with open(FaceRecognitionLabelMap, "w") as f:
         json.dump(labelMap, f)
