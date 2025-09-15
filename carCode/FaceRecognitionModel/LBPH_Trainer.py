@@ -3,7 +3,7 @@ import os
 import numpy as np
 import json
 
-FaceRecognitionModel = os.path.join(os.path.dirname(__file__), "LBPH_Trainer.yml")
+FaceRecognitionModel = os.path.join(os.path.dirname(__file__), "Model.yml")
 FaceRecognitionDatasetPath = os.path.join(os.path.dirname(__file__), "FaceTrainingDataset")
 FaceRecognitionLabelMap = os.path.join(os.path.dirname(__file__), "labelMap.json")
 
