@@ -9,7 +9,7 @@ import paho.mqtt.client as mqtt
 from paho.mqtt.properties import Properties
 from paho.mqtt.packettypes import PacketTypes
 from datetime import datetime
-from trainer import TrainModel
+from FaceRecognitionModel.LBPH_Trainer import TrainModel
 
 # print(config.SERVER_IP)
 def stop(sig, frm):
