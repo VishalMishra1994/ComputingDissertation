@@ -2,14 +2,12 @@ import cv2
 import time, sys, signal
 from picamera2 import Picamera2
 from src import configFile as config
-import socket
-import select
-import base64
+import json
 import paho.mqtt.client as mqtt
 from paho.mqtt.properties import Properties
 from paho.mqtt.packettypes import PacketTypes
 from datetime import datetime
-from FaceRecognitionModel.LBPH_Trainer import TrainModel
+from FaceRecognitionModel.LBPH_Trainer import TrainModel, FaceRecognitionModel, FaceRecognitionLabelMap, trainerImageSize
 
 # print(config.SERVER_IP)
 def stop(sig, frm):
@@ -17,11 +15,6 @@ def stop(sig, frm):
     client.disconnect()
     print("\nBye")
     sys.exit(0)
-
-#Remove lines below
-TrainModel()
-print("\nBye")
-sys.exit(0)
 
 def sendText(topic, msg):
     client.publish(topic, msg)
@@ -33,12 +26,32 @@ def sendFace(topic, face, fileName, msg):
     # faceAsText = base64.b64encode(buffer).decode('utf-8')
     # sendText(topic, faceAsText)
 
+def checkIfModelFilesExist():
+    if os.path.exists(FaceRecognitionModel) and os.path.exists(FaceRecognitionLabelMap):
+        return True
+    
+    return False
+
 # face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
 # face_cascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
 face_cascade = cv2.CascadeClassifier(config.cascadePath)
 if face_cascade.empty():
     print("Error: Haar cascade not loaded")
     sys.exit(1)
+
+if not checkIfModelFilesExist():
+    print("Model Files not found. Training Model")
+    isTrained = TrainModel()
+
+    if not isTrained:
+        print("Model training failing. Exiting.")
+        sys.exit(0)
+
+faceRecognizer = cv2.face.LBPHFaceRecognizer_create()
+faceRecognizer.read(FaceRecognitionModel)
+
+with open(FaceRecognitionLabelMap, "r") as f:
+    labelMap = json.load(f)
 
 print("Haar detection running… Ctrl+C to stop")
 signal.signal(signal.SIGINT, stop)
@@ -56,11 +69,11 @@ client.publish("test/topic", "Hello from " + config.deviceName)
 # Detect Face
 t0, n = time.time(), 0
 while True:
-    frame_original = picam2.capture_array()
+    frameOriginal = picam2.capture_array()
     if n % config.frameSkip == 0:
-        frame_resized = cv2.resize(frame_original, (0, 0), fx=(1/config.videoScaler), fy=(1/config.videoScaler)) #Resizing the frame to a lower resolution
-        gray  = cv2.cvtColor(frame_resized, cv2.COLOR_RGB2GRAY)
-        faces = face_cascade.detectMultiScale(gray, 1.2, 5, minSize=(20, 20))
+        frameResized = cv2.resize(frameOriginal, (0, 0), fx=(1/config.videoScaler), fy=(1/config.videoScaler)) #Resizing the frame to a lower resolution
+        frameResizedGray  = cv2.cvtColor(frameResized, cv2.COLOR_RGB2GRAY)
+        faces = face_cascade.detectMultiScale(frameResizedGray, 1.2, 5, minSize=(20, 20))
 
         if len(faces) > 0:
             currentTime = datetime.now()
@@ -72,11 +85,29 @@ while True:
                 w *= config.videoScaler
                 h *= config.videoScaler
 
-                face_rgb = frame_original[y:y+h, x:x+w]
-                face_bgr = cv2.cvtColor(face_rgb, cv2.COLOR_RGB2BGR)
-                ok, face = cv2.imencode(".jpg", face_bgr, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
+                faceRgb = frameOriginal[y:y+h, x:x+w]
+                faceBgr = cv2.cvtColor(faceRgb, cv2.COLOR_RGB2BGR)
+                ok, face = cv2.imencode(".jpg", faceBgr, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
                 if not ok:
                     continue
+
+                #################################################
+                faceGray = cv2.cvtColor(faceBgr, cv2.COLOR_BGR2GRAY)
+                faceResized = cv2.resize(faceGray, trainerImageSize)
+
+                # Predict using LBPH
+                labelId, confidence = faceRecognizer.predict(faceResized)
+                personName = labelMap.get(str(labelId), "Unknown")
+
+                # Apply a confidence threshold (lower is better)
+                if confidence < 70:
+                    recognition_result = f"{person_name} ({confidence:.1f})"
+                else:
+                    recognition_result = "Unknown"
+
+                print(f"[INFO] Recognition: {recognition_result}")
+
+                #################################################
                 
                 sendFace("test/topic", face.tobytes(), f"face_{timeStamp}_{i}", "Face") #change msg here
                 # print(f"boxes={face.tolist()}")

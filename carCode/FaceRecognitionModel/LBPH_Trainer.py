@@ -6,6 +6,7 @@ import json
 FaceRecognitionModel = os.path.join(os.path.dirname(__file__), "Model.yml")
 FaceRecognitionDatasetPath = os.path.join(os.path.dirname(__file__), "FaceTrainingDataset")
 FaceRecognitionLabelMap = os.path.join(os.path.dirname(__file__), "labelMap.json")
+trainerImageSize = (200, 200)
 
 def TrainModel():
     faces = []
@@ -40,7 +41,7 @@ def TrainModel():
                 print(f"[WARNING] Skipping unreadable file: {imagePath}")
                 continue
             
-            image = cv2.resize(image, (200, 200))
+            image = cv2.resize(image, trainerImageSize)
 
             faces.append(image)
             labels.append(personId)
@@ -50,6 +51,11 @@ def TrainModel():
     
     # faces = np.array(faces)
     labels = np.array(labels)
+
+    if len(faces) == 0 or len(labelMap) == 0:
+        print("Training Failed")
+        return False
+
     print(f"[INFO] Found {len(faces)} images across {len(labelMap)} people.")
 
     faceRecognizer = cv2.face.LBPHFaceRecognizer_create()
@@ -62,6 +68,7 @@ def TrainModel():
     
     print(f"[INFO] Model updated and saved at: {FaceRecognitionModel}")
     print(f"[INFO] Label map updated and saved at: {FaceRecognitionLabelMap}")
+    return True
 
 # # Load existing LBPH model if it exists
 # recognizer = cv2.face.LBPHFaceRecognizer_create()
