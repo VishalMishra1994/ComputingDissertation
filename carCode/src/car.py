@@ -102,11 +102,11 @@ while True:
 
                 # Apply a confidence threshold (lower is better)
                 if confidence < 70:
-                    recognition_result = f"{person_name} ({confidence:.1f})"
+                    recognitionResult = f"{personName} ({confidence:.1f})"
                 else:
-                    recognition_result = "Unknown"
+                    recognitionResult = "Unknown"
 
-                print(f"[INFO] Recognition: {recognition_result}")
+                print(f"[INFO] Recognition: {recognitionResult}")
 
                 #################################################
                 
