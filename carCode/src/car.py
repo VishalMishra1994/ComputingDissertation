@@ -10,7 +10,14 @@ from paho.mqtt.packettypes import PacketTypes
 from datetime import datetime
 from FaceRecognitionModel.LBPH_Trainer import TrainModel, FaceRecognitionModel, FaceRecognitionLabelMap, trainerImageSize
 
-# print(config.SERVER_IP)
+# Callback when connected to broker
+def on_connect(client, userdata, flags, reasonCode, properties=None):
+    if reasonCode == 0:
+        print("Connected")
+        client.subscribe("CarMessages")
+    else:
+        print("Connection failed with result code " + str(reasonCode))
+
 def stop(sig, frm):
     picam2.stop()
     client.disconnect()
@@ -23,9 +30,6 @@ def sendText(topic, msg):
 def sendFace(topic, face, fileName, msg):
     props.UserProperty = [("filename", f"{fileName}.jpg"), ("content_type", "face"), ("message", msg)]
     client.publish(topic, face, qos=1, properties=props)
-    # _, buffer = cv2.imencode('.jpg', face)
-    # faceAsText = base64.b64encode(buffer).decode('utf-8')
-    # sendText(topic, faceAsText)
 
 def checkIfModelFilesExist():
     if os.path.exists(FaceRecognitionModel) and os.path.exists(FaceRecognitionLabelMap):
@@ -33,8 +37,6 @@ def checkIfModelFilesExist():
     
     return False
 
-# face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
-# face_cascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
 face_cascade = cv2.CascadeClassifier(config.cascadePath)
 if face_cascade.empty():
     print("Error: Haar cascade not loaded")
@@ -65,7 +67,7 @@ time.sleep(0.5)
 client = mqtt.Client(client_id=config.deviceName, protocol=mqtt.MQTTv5)
 client.connect(config.SERVER_IP, 1883, 60)
 props = Properties(PacketTypes.PUBLISH)
-client.publish("test/topic", "Hello from " + config.deviceName)
+client.publish("CarMessages", "Hello from " + config.deviceName)
 
 # Detect Face
 t0, n = time.time(), 0
@@ -88,41 +90,28 @@ while True:
 
                 faceRgb = frameOriginal[y:y+h, x:x+w]
                 faceBgr = cv2.cvtColor(faceRgb, cv2.COLOR_RGB2BGR)
-                ok, face = cv2.imencode(".jpg", faceBgr, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
-                if not ok:
-                    continue
 
-                #################################################
+                # Recognition
                 faceGray = cv2.cvtColor(faceBgr, cv2.COLOR_BGR2GRAY)
                 faceResized = cv2.resize(faceGray, trainerImageSize)
 
-                # Predict using LBPH
                 labelId, confidence = faceRecognizer.predict(faceResized)
                 personName = labelMap.get(str(labelId), "Unknown")
 
-                # Apply a confidence threshold (lower is better)
                 if confidence < 70:
                     recognitionResult = f"{personName} ({confidence:.1f})"
                 else:
                     recognitionResult = "Unknown"
 
-                print(f"[INFO] Recognition: {recognitionResult}")
+                sendText("ServerMessages", recognitionResult)
+                #print(f"[INFO] Recognition: {recognitionResult}")
 
                 #################################################
                 
-                sendFace("test/topic", face.tobytes(), f"face_{timeStamp}_{i}", "Face") #change msg here
-                # print(f"boxes={face.tolist()}")
-                # cv2.imwrite(f"Face{i}.jpg", cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
-            print(f"faces={len(faces)} | boxes={faces.tolist()}")
-
-        
-        # elif n % (config.FPS) == 0:
-        #     fps = (n+1)/(time.time()-t0)
-        #     print(f"FPS≈{fps:0.1f} | faces=0")
-        #     cv2.imwrite("debug_frame.jpg", cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
-        #     print("Saved debug_frame.jpg — check lighting/distance/pose")
-            # cv2.imwrite(f"frame_{n}.jpg", frame)
-            # print("saved", f"frame_{n}.jpg", frame.shape)
+                ok, face = cv2.imencode(".jpg", faceBgr, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
+                if ok:
+                    sendFace("ServerMessages", face.tobytes(), f"face_{timeStamp}_{i}", "Unknown Face")
+                
     n += 1
 
 

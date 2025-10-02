@@ -15,7 +15,7 @@ def TrainModel():
     if os.path.exists(FaceRecognitionLabelMap):
         with open(FaceRecognitionLabelMap, "r") as f:
             labelMap = json.load(f)
-        print("[INFO] Loaded existing label map.")
+        print("Loaded existing label map.")
     else:
         labelMap = {}
         
@@ -28,7 +28,7 @@ def TrainModel():
             personName, personIdStr = PersonFolderName.rsplit("_", 1)
             personId = int(personIdStr)
         except ValueError:
-            print(f"[WARNING] Skipping folder with invalid name: {PersonFolderName}")
+            print(f"Skipping folder with invalid name: {PersonFolderName}")
             continue
 
         labelMap[personIdStr] = personName
@@ -38,7 +38,7 @@ def TrainModel():
             image = cv2.imread(imagePath, cv2.IMREAD_GRAYSCALE)
 
             if image is None:
-                print(f"[WARNING] Skipping unreadable file: {imagePath}")
+                print(f"Skipping unreadable file: {imagePath}")
                 continue
             
             image = cv2.resize(image, trainerImageSize)
@@ -56,7 +56,7 @@ def TrainModel():
         print("Training Failed")
         return False
 
-    print(f"[INFO] Found {len(faces)} images across {len(labelMap)} people.")
+    print(f"Found {len(faces)} images across {len(labelMap)} people.")
 
     faceRecognizer = cv2.face.LBPHFaceRecognizer_create()
     faceRecognizer.train(faces, labels)
@@ -66,8 +66,8 @@ def TrainModel():
     with open(FaceRecognitionLabelMap, "w") as f:
         json.dump(labelMap, f)
     
-    print(f"[INFO] Model updated and saved at: {FaceRecognitionModel}")
-    print(f"[INFO] Label map updated and saved at: {FaceRecognitionLabelMap}")
+    print(f"Model updated and saved at: {FaceRecognitionModel}")
+    print(f"Label map updated and saved at: {FaceRecognitionLabelMap}")
     return True
 
 # # Load existing LBPH model if it exists
