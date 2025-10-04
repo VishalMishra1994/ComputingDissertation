@@ -56,9 +56,6 @@ faceRecognizer.read(FaceRecognitionModel)
 with open(FaceRecognitionLabelMap, "r") as f:
     labelMap = json.load(f)
 
-print("Haar detection running… Ctrl+C to stop")
-signal.signal(signal.SIGINT, stop)
-
 picam2 = Picamera2()
 picam2.configure(picam2.create_video_configuration(main={"size": (config.videoWidth, config.videoHeight), "format": "RGB888"}))
 picam2.start()
@@ -68,6 +65,9 @@ client = mqtt.Client(client_id=config.deviceName, protocol=mqtt.MQTTv5)
 client.connect(config.SERVER_IP, 1883, 60)
 props = Properties(PacketTypes.PUBLISH)
 client.publish("CarMessages", "Hello from " + config.deviceName)
+
+print("Haar detection running… Ctrl+C to stop")
+signal.signal(signal.SIGINT, stop)
 
 # Detect Face
 t0, n = time.time(), 0
@@ -103,14 +103,16 @@ while True:
                 else:
                     recognitionResult = "Unknown"
 
-                sendText("ServerMessages", recognitionResult)
-                #print(f"[INFO] Recognition: {recognitionResult}")
+                print(f"Recognition: {recognitionResult}")
 
                 #################################################
                 
                 ok, face = cv2.imencode(".jpg", faceBgr, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
                 if ok:
-                    sendFace("ServerMessages", face.tobytes(), f"face_{timeStamp}_{i}", "Unknown Face")
+                    if recognitionResult = "Unknown":
+                        sendFace("ServerMessages", face.tobytes(), f"face_{timeStamp}_{i}", "Unknown Face")
+                    else:
+                        sendFace("ServerMessages", face.tobytes(), f"face_{timeStamp}_{i}", f"Recognised Face : {personName} ({confidence:.1f})")
                 
     n += 1
 
