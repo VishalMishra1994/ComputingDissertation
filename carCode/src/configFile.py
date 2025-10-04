@@ -2,7 +2,7 @@ import os
 
 SERVER_IP = "100.94.90.37"
 PORT = 6000
-deviceName = "Car1"
+deviceName = "Car2"
 
 #Camera constants
 videoWidth, videoHeight = 1920, 1080
