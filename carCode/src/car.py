@@ -109,7 +109,7 @@ while True:
                 
                 ok, face = cv2.imencode(".jpg", faceBgr, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
                 if ok:
-                    if recognitionResult = "Unknown":
+                    if recognitionResult == "Unknown":
                         sendFace("ServerMessages", face.tobytes(), f"face_{timeStamp}_{i}", "Unknown Face")
                     else:
                         sendFace("ServerMessages", face.tobytes(), f"face_{timeStamp}_{i}", f"Recognised Face : {personName} ({confidence:.1f})")
