@@ -69,39 +69,3 @@ def TrainModel():
     print(f"Model updated and saved at: {FaceRecognitionModel}")
     print(f"Label map updated and saved at: {FaceRecognitionLabelMap}")
     return True
-
-# # Load existing LBPH model if it exists
-# recognizer = cv2.face.LBPHFaceRecognizer_create()
-# if os.path.exists(FaceRecognitionModel):
-#     recognizer.read(FaceRecognitionModel)
-
-# # Function to load all images and labels
-# def get_images_and_labels(path):
-#     faces = []
-#     ids = []
-#     for file in os.listdir(path):
-#         if file.endswith(".jpg"):
-#             img = cv2.imread(os.path.join(path, file), cv2.IMREAD_GRAYSCALE)
-#             label = int(file.split("_")[1])  # assuming filename format: name_ID_#.jpg
-#             faces.append(img)
-#             ids.append(label)
-#     return faces, np.array(ids)
-
-# # Step 1: Collect new samples for the new person
-# new_person_name = "Bob"
-# new_person_id = 2
-# new_faces = []  # list of grayscale images
-# # For example, populate new_faces from camera capture
-# # new_faces.append(gray_face)
-
-# # Step 2: Save new faces to dataset folder
-# for i, face in enumerate(new_faces):
-#     cv2.imwrite(f"{dataset_path}/{new_person_name}_{new_person_id}_{i}.jpg", face)
-
-# # Step 3: Reload all faces + labels (old + new)
-# faces, ids = get_images_and_labels(dataset_path)
-
-# # Step 4: Retrain LBPH
-# recognizer.train(faces, ids)
-# recognizer.save(model_path)
-# print("LBPH model updated with new person.")
